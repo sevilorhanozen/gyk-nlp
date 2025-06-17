@@ -51,22 +51,77 @@ lemmatizer = WordNetLemmatizer()
 # a => adjective -> sıfat
 # r => adverb (zarf)
 print(lemmatizer.lemmatize('running', pos='n'))
-# He is running.
-# He went to running.
 
-# --
-# He is running every day.
-# I run every day.
-# She ran yesterday.
-# --
 
-#
-# He be run every day
-# I run every day
-# She run yesterday
+# Pos tagging => Part of Speech Tagging
+nltk.download('averaged_perceptron_tagger_eng')
+from nltk import pos_tag
+
+pos_tags = pos_tag(filtered_tokens)
+print(pos_tags)
 #
 
-# injured -> injure
+
+# NER => Named Entity Recognition
+nltk.download('maxent_ne_chunker_tab')
+nltk.download('words')
+
+from nltk import ne_chunk
+tree = ne_chunk(pos_tags)
+print(tree)
+#
+
+
+# You have chosen
+# YoU hAvE ChOSen
+
+# Metin temizleme ve ön işleme 
+# Lowercasing
+text = "Natural Language Processing is, a branch of artificial intelligence. %100"
+
+text = text.lower()
+print(text)
+#
+
+# Remove Punctuation
+import re
+text = re.sub(r'[^\w\s]', '', text) #Regex => Regular Expression
+print(text)
+#
+
+#
+text = re.sub(r'\d+', '', text)
+print(text)
+#
+
+
+# Vectorize Etmek
+
+# Bag Of Words
+corpus = [
+    "Natural Language Processing is a branch of artificial intelligence.",
+    "I love studying NLP.",
+    "Language is a tool for communication.",
+    "Language models can understand texts."
+]
+from sklearn.feature_extraction.text import CountVectorizer
+
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(corpus)
+
+print(vectorizer.get_feature_names_out())
+print(X.toarray())
+#
+
+# Tf-Idf -> Term Frequency - Inverse Document Frequency
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+vectorizer2 = TfidfVectorizer()
+X2 = vectorizer2.fit_transform(corpus)
+
+print(vectorizer2.get_feature_names_out())
+print(X2.toarray())
 
 
 
@@ -74,7 +129,6 @@ print(lemmatizer.lemmatize('running', pos='n'))
 
 
 #
-
 
 
 

@@ -257,3 +257,5 @@ print(cosine_similarity(vec1, vec2))
 
 
 # Sentence-BERT (SBERT) 
+# Bu dosya üzerinde uygulayalım.
+# 11.35

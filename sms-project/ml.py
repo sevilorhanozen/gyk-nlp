@@ -47,3 +47,14 @@ from sklearn.metrics import classification_report,accuracy_score
 print(accuracy_score(y_test, y_pred))
 print("*****")
 print(classification_report(y_test, y_pred))
+
+
+#new_sms = "You have won a free iPhone 13 Pro Max! Click the link to claim your prize."
+new_sms = "I'm sorry to hear that you're having trouble with your account. Let me know if I can help you with anything."
+new_sms = clean_text(new_sms)
+
+new_sms_vectorized = vectorizer.transform([new_sms])
+
+prediction = model.predict(new_sms_vectorized)
+
+print("Tahmin: ", "SPAM" if prediction[0] == 1 else "SPAM DEĞİL")

@@ -59,13 +59,22 @@ for i in range(3):
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional, Dropout
 
+# Training verisinde kısa spam örnekleri yok, eklenebilir.
+
 # Embedding Layer Detayları
+
+# Model spam patternlarını cümle yapısından ayırt edemiyor?
+
+# n-gram awareness => sağlayacak bir şeyler eklemek?
+
+# "win" + "prize" + "click" => spam
+# "win","prize"
 
 model = Sequential()
 # input_dim => Toplam kelime sayısı
 # output_dim => Vektör boyutu (Her idyi kaç boyutlu vektörle temsil edeceğiz)
 # input_length => Her mesajın kaç kelimelik olacağı
-model.add(Embedding(input_dim=vocab_size, output_dim=64, input_length=max_length)) # Kelimeleri sayılardan oluşan anlamlı vektörlere çevir.
+model.add(Embedding(input_dim=vocab_size, output_dim=64, input_length=max_length, mask_zero=True)) # Kelimeleri sayılardan oluşan anlamlı vektörlere çevir.
 # 42 -> [0.25,0.13,-0.27, 0.5]
 # Kelimelere id atamak (Tokenizer)
 # 42 gibi sayılar model için anlamlı değil.. 
@@ -75,20 +84,14 @@ model.add(Embedding(input_dim=vocab_size, output_dim=64, input_length=max_length
 # RNN => Recurrent Neural Network
 # Bidirectional => LSTM'in hem ileri hem geri yönde çalışmasını sağlar.
 model.add(Bidirectional(LSTM(64))) # 64 => Nöron sayısı
-
-
 # Dropout katmanı?
 model.add(Dropout(0.5)) # 0.5 => %50 dropout => Nöronların %50'sini kapatır.
 #
-
 # Bağlamı hatırlamak için.
 # Ali sabah okula gitti. Akşam eve geldi.
-
 # Forget Gate, Input Gate, Output Gate (ARAŞTIRMA)
 # LSTM sırayla gelen verileri işlerken geçmişte gördüğü önemli bilgileri hatırlayan bir yapay zeka katmanı.
-
 # Activation Function nedir?
-
 # Dense -> Fully Connected Layer
 # 1 => 1 tane nöron çünkü binary classification -> spam değil mi?
 model.add(Dense(1, activation="sigmoid")) # sigmoid => 0-1 arası değerler verir. %75 spam %25 ham 0.75
@@ -98,7 +101,15 @@ model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"]
 
 model.summary()
 # Epoch => veriyi baştan sona kaç kere göreyim?
-history = model.fit(X_train_pad, y_train, epochs=10, validation_data=(X_test_pad, y_test))
+
+# Early Stopping
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Patience = 3 => 3 epoch sonra kontrol et. => val_loss N adet epoch boyunca iyileşmezse dur.
+# Restore Best Weights => En iyi epoch'i kullan.
+early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+
+history = model.fit(X_train_pad, y_train, epochs=30, validation_data=(X_test_pad, y_test), callbacks=[early_stopping])
 
 # Eğitim sonunda modeli kaydet.
 model.save("sms_model.h5")

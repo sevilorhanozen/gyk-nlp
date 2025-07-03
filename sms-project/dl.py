@@ -27,10 +27,12 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 
 # num_words => Kelime sayısı
 # out-of-vocabulary token => <OOV>
-tokenizer = Tokenizer(num_words=5000, oov_token='<OOV>')
-tokenizer.fit_on_texts(X_train)
 
-print(tokenizer.word_index.items())
+# num_words => Toplam kelime sayısı -> verilmezse -> tüm kelimeleri alır.
+tokenizer = Tokenizer(oov_token='<OOV>')
+tokenizer.fit_on_texts(X_train)
+vocab_size = len(tokenizer.word_index) + 1 # 1 ekleniyor çünkü 0 index kullanılmaz. (Padding için)
+
 
 # Metinleri sayıya çevir (sequence)
 X_train_seq = tokenizer.texts_to_sequences(X_train)
@@ -47,14 +49,15 @@ for i in range(3):
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 # Bütün cümleleri belirlenen uzunluğa getir.
 max_length = 100
-X_train_pad = pad_sequences(X_train_seq, maxlen=max_length, padding='post')
-X_test_pad = pad_sequences(X_test_seq, maxlen=max_length, padding='post')
-#
+# truncating => Eğer cümle uzun ise kısaltır.
+X_train_pad = pad_sequences(X_train_seq, maxlen=max_length, padding='post', truncating='post')
+X_test_pad = pad_sequences(X_test_seq, maxlen=max_length, padding='post', truncating='post')
+
 for i in range(3):
     print(f"{i+1}. Metin: {X_train_pad[i]}")
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, LSTM, Dense
+from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional, Dropout
 
 # Embedding Layer Detayları
 
@@ -62,7 +65,7 @@ model = Sequential()
 # input_dim => Toplam kelime sayısı
 # output_dim => Vektör boyutu (Her idyi kaç boyutlu vektörle temsil edeceğiz)
 # input_length => Her mesajın kaç kelimelik olacağı
-model.add(Embedding(input_dim=5000, output_dim=16, input_length=max_length)) # Kelimeleri sayılardan oluşan anlamlı vektörlere çevir.
+model.add(Embedding(input_dim=vocab_size, output_dim=64, input_length=max_length)) # Kelimeleri sayılardan oluşan anlamlı vektörlere çevir.
 # 42 -> [0.25,0.13,-0.27, 0.5]
 # Kelimelere id atamak (Tokenizer)
 # 42 gibi sayılar model için anlamlı değil.. 
@@ -70,7 +73,14 @@ model.add(Embedding(input_dim=5000, output_dim=16, input_length=max_length)) # K
 
 # Long Short Term Memory (LSTM) Layer
 # RNN => Recurrent Neural Network
-model.add(LSTM(64)) # 64 => Nöron sayısı
+# Bidirectional => LSTM'in hem ileri hem geri yönde çalışmasını sağlar.
+model.add(Bidirectional(LSTM(64))) # 64 => Nöron sayısı
+
+
+# Dropout katmanı?
+model.add(Dropout(0.5)) # 0.5 => %50 dropout => Nöronların %50'sini kapatır.
+#
+
 # Bağlamı hatırlamak için.
 # Ali sabah okula gitti. Akşam eve geldi.
 
@@ -98,3 +108,14 @@ import pickle
 
 with open('tokenizer.pkl', 'wb') as f:
     pickle.dump(tokenizer, f)
+
+import matplotlib.pyplot as plt
+
+# Accuracy
+plt.plot(history.history['accuracy'], label='train')
+plt.plot(history.history['val_accuracy'], label='val')
+plt.title('Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()

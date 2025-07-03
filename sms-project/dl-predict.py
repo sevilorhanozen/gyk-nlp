@@ -26,7 +26,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 def predict(message):
     message = clean_text(message)
     seq = tokenizer.texts_to_sequences([message])
-    pad = pad_sequences(seq, maxlen=100)
+    pad = pad_sequences(seq, maxlen=100, padding='post')
     prediction = model.predict(pad)
     print(f"Tahmin Oranı:  {prediction[0][0]:.4f}")
     if prediction[0][0] > 0.5:
@@ -39,3 +39,4 @@ def predict(message):
 if __name__ == "__main__":
     text = input("Bir sms giriniz:")
     predict(text)
+

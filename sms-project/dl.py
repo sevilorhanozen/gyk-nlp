@@ -89,3 +89,12 @@ model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"]
 model.summary()
 # Epoch => veriyi baştan sona kaç kere göreyim?
 history = model.fit(X_train_pad, y_train, epochs=10, validation_data=(X_test_pad, y_test))
+
+# Eğitim sonunda modeli kaydet.
+model.save("sms_model.h5")
+#model.save("sms_model2.keras") 
+
+import pickle
+
+with open('tokenizer.pkl', 'wb') as f:
+    pickle.dump(tokenizer, f)

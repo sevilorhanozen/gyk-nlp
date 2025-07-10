@@ -24,7 +24,7 @@ print(len(final_texts))
 print(len(final_labels))
 
 print(final_texts[0])
-print(final_labels[0])
+print(final_labels[:50])
 
 # Eğer labelimiz "sad,happy,love" gibi bir text label ise. [sad,happy,love,angry] => Encoding
 
@@ -34,5 +34,57 @@ print(final_labels[0])
 # Eğer birden fazlaa label varsa bir veri için. "sad","angry"
 # MultiLabelBinarizer
 # OneHotEncoder
+# [6,9,27] => 10
+from sklearn.preprocessing import MultiLabelBinarizer
 
-# 19:40
+mlb = MultiLabelBinarizer()
+y = mlb.fit_transform(final_labels)
+num_classes = y.shape[1]
+
+
+
+# Label kısmını hallettim. Derin öğrenmeye girmeye hazır.
+# Text kısmını halletmeliyim.
+
+# Tokenization
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+tokenizer = Tokenizer(num_words=10000, oov_token="<OOV>")
+tokenizer.fit_on_texts(final_texts)
+
+sequences = tokenizer.texts_to_sequences(final_texts)
+X = pad_sequences(sequences, padding="post", maxlen=100)
+
+print(X[:50])
+#
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras import layers
+
+model = Sequential(
+    [
+        layers.Embedding(input_dim=10000, output_dim=128, input_length=100),
+        layers.SpatialDropout1D(0.5), # Dropout => Embedding çıkışlarında kullanılır. (Bir cümleyi tamamen kullanmadan dropout yapar.)
+        # Gated Recurrent Unit
+        # Update Gate -> Önceki bilgiyi ne kadar tutacağımı belirliyor.
+        # Reset Gate -> Önceki bilgiyi ne kadar silineceğini belirliyor.
+        # LSTM'e göre Daha az parametre ve daha hızlı.
+        # Forget Gate, -> Geçmişten gelen hangi bilgileri unutacağını belirler
+        # Input Gate, -> Yeni gelen bilgiden ne kadarını belleğe ekleyeceğini belirler.
+        # Output Gate -> Bellekteki bilginin ne kadarının çıktıya yansıyacağını belirler.
+        layers.Bidirectional(layers.GRU(128, return_sequences=True)),
+        layers.LayerNormalization(),  # Katman çıktılarını normalize eder. (Öğrenmeyi daha stabil hale getirir.)
+        layers.Bidirectional(layers.GRU(64, return_sequences=False)),
+        # Öğrenilmiş bilgileri alıp 64 farklı karar mekanizmasından geçir.
+        layers.Dense(64, activation="relu"),
+        # Dense katmanındaki karar mekanizmalarının %50'sini rastgele kapat. Ezberlemeyi önle.
+        layers.Dropout(0.5),
+        # Output Layer
+        layers.Dense(num_classes, activation="sigmoid") # Toplamı 1 olacak şekilde her bir duyguya oran verir. 
+        # 0.1 => sad
+        # 0.005 => happy
+        # 0.85 => angry
+        # 0.045 => love
+    ]
+)

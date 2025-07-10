@@ -35,13 +35,15 @@ print(final_labels[:50])
 # MultiLabelBinarizer
 # OneHotEncoder
 # [6,9,27] => 10
+import pickle 
 from sklearn.preprocessing import MultiLabelBinarizer
 
 mlb = MultiLabelBinarizer()
 y = mlb.fit_transform(final_labels)
 num_classes = y.shape[1]
 
-
+with open("mlb.pkl", "wb") as f:
+    pickle.dump(mlb, f)
 
 # Label kısmını hallettim. Derin öğrenmeye girmeye hazır.
 # Text kısmını halletmeliyim.
@@ -49,9 +51,11 @@ num_classes = y.shape[1]
 # Tokenization
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-
 tokenizer = Tokenizer(num_words=10000, oov_token="<OOV>")
 tokenizer.fit_on_texts(final_texts)
+
+with open("tokenizer.pkl", "wb") as f:
+    pickle.dump(tokenizer, f)
 
 sequences = tokenizer.texts_to_sequences(final_texts)
 X = pad_sequences(sequences, padding="post", maxlen=100)
@@ -61,7 +65,7 @@ print(X[:50])
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
-
+print("Durdur")
 model = Sequential(
     [
         layers.Embedding(input_dim=10000, output_dim=128, input_length=100),
@@ -88,3 +92,16 @@ model = Sequential(
         # 0.045 => love
     ]
 )
+import tensorflow as tf
+# binary_crossentropy => Çoklu etiket için uygun bir loss function.
+# Area Under The Curve => ROC eğrisi altındaki alanı hesaplar.
+# AUC => 0-1 arasında değer alır 1 => mükemmel 0.5 ve altı ise kötü.
+model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy", tf.keras.metrics.AUC(name="auc")])
+
+model.summary()
+
+model.fit(X,y, epochs=5,  batch_size=64, validation_split=0.2)
+
+model.save("sentiment_analysis_model.h5")
+
+# 20:35

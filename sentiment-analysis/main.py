@@ -104,4 +104,8 @@ model.fit(X,y, epochs=5,  batch_size=64, validation_split=0.2)
 
 model.save("sentiment_analysis_model.h5")
 
-# 20:35
+
+
+# Data Augmentation (EDA) yaparak tüm veriyle bu modeli geliştirip skorlarını izlemek, 
+# kendi ürettiğimiz 10 veriyle test etmek.
+

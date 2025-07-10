@@ -54,6 +54,3 @@ print(data)
 print(label_names[predicted_labels[0]])
 
 
-# 
-
-

@@ -28,6 +28,10 @@ text_deletion = deletion_aug.augment(text)
 print(text_deletion)
 #
 
-
+#
+#bert_insert = naw.ContextualWordEmbsAug(model_path="bert-base-uncased", action="insert")
+#text_bert_insert = bert_insert.augment(text)
+#print(text_bert_insert)
+#
 
 

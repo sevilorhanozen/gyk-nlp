@@ -4,6 +4,11 @@
 # Veri -> İşin en zor kısmı.
 # LLM = Large Language Model
 
+
+# 1. teknik -> Herhangi bir modeli olduğu gibi kullanmak
+# 2. teknik -> Modeli alıp özel veriyle donatma -> Parametre sayısı
+
+
 # Transfer-Learning -> Daha önceden büyük çaplı bir veriyle eğitilmiş bir modeli alıp kendi verimizle çalışabilecek duruma getirmek.
 # Derin Öğrenme => Sıfırdan bir beyin eğitmek.
 # Transfer Learning -> Benzer verilerle eğitilmiş bir beyni kendi verimize adapte etmek..
@@ -22,12 +27,11 @@ model = TFAutoModelForCausalLM.from_pretrained(model_name)
 ##response = generator(prompt, max_length=100, pad_token_id=tokenizer.eos_token_id)
 #print(response)
 prompt = (
-    "User:	Does money buy happiness?"
-    "Bot:	Depends how much money you spend on it ."
-    "User:	What is the best way to buy happiness ?"
-    "Bot:	You just have to be a millionaire by your early 20s, then you can be happy ."
-    "User:	This is so difficult !"
-    "Bot: "
+    "User:	Does money buy happiness?\n"
+    "Bot:	Depends how much money you spend on it .\n"
+    "User:	What is the best way to buy happiness ?\n"
+    "Bot:	You just have to be a millionaire by your early 20s, then you can be happy .\n"
+    "User:	This is so difficult !\n"
 )
 
 input_ids = tokenizer.encode(prompt, return_tensors="tf")
@@ -36,9 +40,9 @@ output = model.generate(input_ids,
                         max_length=100, 
                         pad_token_id=tokenizer.eos_token_id,
                         do_sample=True,
-                        temperature=0.5,
-                        top_k=10,
-                        top_p=0.95
+                        temperature=0.8,
+                        top_k=100,
+                        top_p=0.50
                         )
 
 generated_text = tokenizer.decode(output[0], skip_special_tokens=True)

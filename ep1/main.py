@@ -169,7 +169,8 @@ corpus = [
 ]
 
 from sklearn.feature_extraction.text import TfidfVectorizer
-# Unigram ve Bigram birlikte kullanılır.
+# ngram bir vectorizing işleminin türüdür. corpustaki veri setini vectorize edecek TfidVectorizer. Sadece sıra bazlı sayısallaştırıyor. 
+# Unigram ve Bigram birlikte kullanılır. 
 vectorizer = TfidfVectorizer(ngram_range=(1,2), lowercase=True)
 
 X = vectorizer.fit_transform(corpus)
@@ -177,7 +178,7 @@ X = vectorizer.fit_transform(corpus)
 print(f"Feature Names: {vectorizer.get_feature_names_out()}")
 print(f"X: {X.toarray()}")
 
-# Word Embedding
+# Word Embeddings
 # Her kelimeye sayısal bir vektör ata. Bu vektörler sayesinde:
 # Kelimeler arasındaki anlamsal yakınlık öğreniliyor.
 # Aynı bağlam geçen kelimeler, uzayda da birbirine yakın olur.

@@ -133,7 +133,8 @@ print(X2.toarray())
 # 4- TF-IDF Vektörleştirme
 # 5- Feature isimlerini ve arrayi ekrana yazdır.
 
-# generate a corpus of 10 about AI in english
+
+# 20 Haziran 2025 ders kaydı generate a corpus of 10 about AI in english
 corpus = [
     "Artificial Intelligence is the future.",
     "AI is changing the world.",
